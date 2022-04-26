@@ -19,8 +19,8 @@ namespace Suborner.Crypto
         const int SAM_KEY_DATA_SALT_LENGTH = 16;
         const int SAM_KEY_DATA_KEY_LENGTH = 16;
 
-        const string LSA_QWERTY = "!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%";
-        const string LSA_0123 = "0123456789012345678901234567890123456789";
+        const string LSA_QWERTY = "!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0";
+        const string LSA_0123 = "0123456789012345678901234567890123456789\0";
 
         const uint MD5_DIGEST_LENGTH = 16;
 
@@ -76,7 +76,6 @@ namespace Suborner.Crypto
             IntPtr pDomAccF = Marshal.AllocHGlobal(Marshal.SizeOf(domAccF));
             Marshal.StructureToPtr(domAccF, pDomAccF, false);
 
-            // Calculate SAM Key based on 
             switch (domAccF.Revision)
             {
                 case 2:
@@ -87,6 +86,11 @@ namespace Suborner.Crypto
                             SAM_HASH samHash = new SAM_HASH();
                             samHash.PEKID = 2; //?
                             samHash.Revision = 1;
+
+                            Printer.PrintDebug("Until here for now");
+                            System.Environment.Exit(1);
+
+                            
                             break;
                         case 2:        // >= Windows 10 v1607
                             SAM_HASH_AES samHashAes = new SAM_HASH_AES();
@@ -99,7 +103,7 @@ namespace Suborner.Crypto
                             samHashAes.data = EncryptAES_CBC(DESHash, samKey, out newHashIV);
                             samHashAes.Salt = newHashIV;
                             Printer.PrintDebug(String.Format("Encrypt AES. IV:{0} Data:{1}", Utility.ByteArrayToString(samHashAes.Salt), Utility.ByteArrayToString(samHashAes.data)));
-                            Printer.PrintDebug(String.Format("Testing AES. Value = {0}", Utility.ByteArrayToString(DecryptAES_CBC(samHashAes.data, samKey, samHashAes.Salt))));
+                            
 
                             IntPtr pSamHashAes = Marshal.AllocHGlobal(Marshal.SizeOf(samHashAes));
                             encryptedHash = new byte[Marshal.SizeOf(samHashAes)];
@@ -139,6 +143,7 @@ namespace Suborner.Crypto
                     switch (domAccF.keys1.Revision)
                     {
                         case 1:        //  < Windows 10 v1607
+                            Printer.PrintDebug(String.Format("Detected MD5 Encryption mode "));
                             byte[] data = new byte[SAM_KEY_DATA_SALT_LENGTH + LSA_QWERTY.Length + SYSKEY_LENGTH + LSA_0123.Length];
                             data = domAccF.keys1.Salt.Concat(Encoding.Default.GetBytes(LSA_QWERTY)).Concat(sysKey).Concat(Encoding.Default.GetBytes(LSA_0123)).ToArray();
                             byte[] md5Out = MD5.Create().ComputeHash(data.ToArray());
