@@ -54,7 +54,7 @@ namespace Suborner.Core
             if (!IsSystem)
             {
                 Printer.PrintError("Error: You need SYSTEM privileges to suborn Windows :(");
-                //System.Environment.Exit(1);
+                System.Environment.Exit(1);
             }
         }
         /// <summary>
