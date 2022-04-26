@@ -81,7 +81,7 @@ namespace Suborner.Module.SAM
     {
         public ushort PEKID;
         public ushort Revision;
-        [MarshalAs(UnmanagedType.ByValArray)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)] // Initially did not have SizeConst
         public byte[] data;
     }
 

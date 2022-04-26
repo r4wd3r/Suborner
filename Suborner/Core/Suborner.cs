@@ -73,12 +73,28 @@ namespace Suborner.Core
             Printer.PrintDebug(String.Format("NT Encrypted:{0}", Utility.ByteArrayToString(NTEncrypted)));
 
             // Test if structure is well written
-            SAM_HASH_AES testAes = new SAM_HASH_AES();
-            GCHandle pSamHashAes = GCHandle.Alloc(NTEncrypted, GCHandleType.Pinned);
-            testAes = (SAM_HASH_AES)Marshal.PtrToStructure(pSamHashAes.AddrOfPinnedObject(),
-                                            typeof(SAM_HASH_AES));
-            pSamHashAes.Free();
-            Printer.PrintDebug(String.Format("NT Format - AES IV: {0}, AES DATA = {1}", Utility.ByteArrayToString(testAes.Salt), Utility.ByteArrayToString(testAes.data)));
+            if (SubornerContext.Instance.IsDebug)
+            {
+                switch (SubornerContext.Instance.DomainAccountF.keys1.Revision)
+                {
+                    case 1:
+                        SAM_HASH testNT = new SAM_HASH();
+                        GCHandle pSamHash = GCHandle.Alloc(NTEncrypted, GCHandleType.Pinned);
+                        testNT = (SAM_HASH)Marshal.PtrToStructure(pSamHash.AddrOfPinnedObject(),
+                                                        typeof(SAM_HASH));
+                        Printer.PrintDebug(String.Format("NT Format - Data: {0}", Utility.ByteArrayToString(testNT.data)));
+                        break;
+                    case 2:
+                        SAM_HASH_AES testAes = new SAM_HASH_AES();
+                        GCHandle pSamHashAes = GCHandle.Alloc(NTEncrypted, GCHandleType.Pinned);
+                        testAes = (SAM_HASH_AES)Marshal.PtrToStructure(pSamHashAes.AddrOfPinnedObject(),
+                                                        typeof(SAM_HASH_AES));
+                        pSamHashAes.Free();
+                        Printer.PrintDebug(String.Format("NT Format - AES IV: {0}, AES DATA = {1}", Utility.ByteArrayToString(testAes.Salt), Utility.ByteArrayToString(testAes.data)));
+                        break;
+                }
+            }
+            
 
             VStructure.ChangeSAMVEntryValue("NTLMHash", NTEncrypted);
             Printer.PrintDebug("Value written to V.NTLMHash: " + Utility.ByteArrayToString(VStructure.V.NTLMHash.value));

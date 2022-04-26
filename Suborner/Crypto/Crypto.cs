@@ -58,15 +58,15 @@ namespace Suborner.Crypto
             Printer.PrintDebug("Calculated SAM Key: " + Utility.ByteArrayToString(samKey));
 
             //7. Calculate SAM Encrypted Hash
-
-            encryptedPassword = EncryptSamNTHash(DESHash, samKey, domAccF);
+            encryptedPassword = EncryptSamNTHash(rid, DESHash, samKey, domAccF);
             return encryptedPassword;
         }
 
-        private static byte[] EncryptSamNTHash(byte[] DESHash, byte[] samKey, DOMAIN_ACCOUNT_F domAccF)
+        private static byte[] EncryptSamNTHash(int rid, byte[] DESHash, byte[] samKey, DOMAIN_ACCOUNT_F domAccF)
         {
-            const string LSA_NTPASSWORD = "NTPASSWORD",
-            LSA_LMPASSWORD = "LMPASSWORD",
+            // TODO: Re-implement this to craft both LM/NTLM if needed :)
+            const string LSA_NTPASSWORD = "NTPASSWORD\0",
+            LSA_LMPASSWORD = "LMPASSWORD\0",
             LSA_NTPASSWORDHISTORY = "NTPASSWORDHISTORY",
             LSA_LMPASSWORDHISTORY = "LMPASSWORDHISTORY",
             LMHASH = "aad3b435b51404eeaad3b435b51404ee",
@@ -84,13 +84,31 @@ namespace Suborner.Crypto
                     {
                         case 1:        //  < Windows 10 v1607
                             SAM_HASH samHash = new SAM_HASH();
-                            samHash.PEKID = 2; //?
+                            samHash.PEKID = 1; //?
                             samHash.Revision = 1;
 
-                            Printer.PrintDebug("Until here for now");
-                            System.Environment.Exit(1);
+                            byte[] NTHashDecryptionKey = new byte[SAM_KEY_DATA_KEY_LENGTH + sizeof(uint) + LSA_NTPASSWORD.Length + LSA_0123.Length];
 
-                            
+                            byte[] hexBitRid = BitConverter.GetBytes(rid);
+                            //Array.Reverse(hexBitRid);
+
+                            // Craft NTHashDecryption key with SAM Key, RID and the NTPASSWORD string
+                            NTHashDecryptionKey = samKey.Concat(hexBitRid).Concat(Encoding.ASCII.GetBytes(LSA_NTPASSWORD)).ToArray();
+                            Printer.PrintDebug(String.Format("NT Key about to MD5: {0}", Utility.ByteArrayToString(NTHashDecryptionKey))); ;
+
+                            MD5 md5 = new MD5CryptoServiceProvider();
+                            byte[] MD5NTHashDecryptionKey = md5.ComputeHash(NTHashDecryptionKey);
+
+                            samHash.data = RC4EncryptDecrypt(MD5NTHashDecryptionKey, DESHash);
+
+                            Printer.PrintDebug(String.Format("Encrypt RC4. Data:{0}", Utility.ByteArrayToString(samHash.data)));
+                            IntPtr pSamHash = Marshal.AllocHGlobal(Marshal.SizeOf(samHash));
+                            encryptedHash = new byte[Marshal.SizeOf(samHash)];
+                            Marshal.StructureToPtr(samHash, pSamHash, false); 
+                            Marshal.Copy(pSamHash, encryptedHash, 0, Marshal.SizeOf(samHash));
+                            Marshal.FreeHGlobal(pSamHash);
+
+                            Printer.PrintDebug("Until here for now");
                             break;
                         case 2:        // >= Windows 10 v1607
                             SAM_HASH_AES samHashAes = new SAM_HASH_AES();
@@ -107,7 +125,7 @@ namespace Suborner.Crypto
 
                             IntPtr pSamHashAes = Marshal.AllocHGlobal(Marshal.SizeOf(samHashAes));
                             encryptedHash = new byte[Marshal.SizeOf(samHashAes)];
-                            Marshal.StructureToPtr(samHashAes, pSamHashAes, false); // TODO: Review THIS!
+                            Marshal.StructureToPtr(samHashAes, pSamHashAes, false); 
                             Marshal.Copy(pSamHashAes, encryptedHash, 0, Marshal.SizeOf(samHashAes));
                             Marshal.FreeHGlobal(pSamHashAes);
 
@@ -147,7 +165,7 @@ namespace Suborner.Crypto
                             byte[] data = new byte[SAM_KEY_DATA_SALT_LENGTH + LSA_QWERTY.Length + SYSKEY_LENGTH + LSA_0123.Length];
                             data = domAccF.keys1.Salt.Concat(Encoding.Default.GetBytes(LSA_QWERTY)).Concat(sysKey).Concat(Encoding.Default.GetBytes(LSA_0123)).ToArray();
                             byte[] md5Out = MD5.Create().ComputeHash(data.ToArray());
-                            samKey = RC4Encrypt(md5Out, domAccF.keys1.Key);
+                            samKey = RC4EncryptDecrypt(md5Out, domAccF.keys1.Key);
                             break;
                         case 2:        // >= Windows 10 v1607
                             Printer.PrintDebug("Detected AES Encryption mode");
@@ -269,8 +287,10 @@ namespace Suborner.Crypto
             }
         }
 
+
+
         //https://stackoverflow.com/questions/7217627/is-there-anything-wrong-with-this-rc4-encryption-code-in-c-sharp
-        public static byte[] RC4Encrypt(byte[] pwd, byte[] data)
+        public static byte[] RC4EncryptDecrypt(byte[] pwd, byte[] data)
         {
             int a, i, j, k, tmp;
             int[] key, box;
