@@ -30,12 +30,12 @@ namespace Suborner.UI
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("rid",
                     "/rid:[RID for new account]",
-                    "The RID of the new suborner account. Default = Next RID available.",
+                    "The RID of the new suborner account. Default = Next RID available",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("ridhijack",
                     "/ridhijack:[Impersonated account RID]",
-                    "The RID of the account to impersonate. Default = 500.",
+                    "The RID of the account to impersonate. Default = 500",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("template",
@@ -44,9 +44,9 @@ namespace Suborner.UI
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("machineaccount",
-                    "/machineaccount",
-                    "If this is specified, will create the account as a machine account. Default = True.",
-                    x => x.IsSimpleSwitch));
+                    "/machineaccount:[yes/no]",
+                    "Set as machine account. If no, you will lose some stealthiness Default = yes",
+                    x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("debug",
                     "/debug",
@@ -56,15 +56,17 @@ namespace Suborner.UI
 
             if (!analyzer.VerifyArguments(arguments))
             {
-                string invalidArguments = analyzer.InvalidArgumentsDisplay();
-                Printer.PrintError(invalidArguments);
+                // string invalidArguments = analyzer.InvalidArgumentsDisplay();
+                Printer.PrintError("Error parsing arguments");
                 Printer.ShowUsage(analyzer);
+                System.Environment.Exit(1);
                 return;
             }
 
             // Set up holders for the command line parsing results with default values
             string username = "<HOSTNAME>$";
             string password = "Password.1";
+            string machineAccountSt = "";
             int rid = 0;
             int ridHijack = 500;
             int templateRid = 500;
@@ -79,9 +81,14 @@ namespace Suborner.UI
             analyzer.AddArgumentAction("RID", x => { rid = Convert.ToInt32(x.SubArguments[0].Trim()); });
             analyzer.AddArgumentAction("RIDHIJACK", x => { ridHijack = Convert.ToInt32(x.SubArguments[0].Trim()); });
             analyzer.AddArgumentAction("TEMPLATE", x => { templateRid = Convert.ToInt32(x.SubArguments[0].Trim()); });
-            analyzer.AddArgumentAction("MACHINEACCOUNT", x => { machineAccount = true; }); // TODO: Check how to make this false with flag
+            analyzer.AddArgumentAction("MACHINEACCOUNT", x => { machineAccountSt = x.SubArguments[0].Trim(); }); 
             analyzer.AddArgumentAction("DEBUG", x => { isDebug = true; }); // TODO: Check how to make this false with flag
             analyzer.EvaluateArguments(arguments);
+
+            if (machineAccountSt.ToLower().Equals("no")) {
+                machineAccount = false;
+            }
+
 
             // Load evaluated arguments to Suborner context
             SubornerContext.Instance.TemplateAccountRID = templateRid;

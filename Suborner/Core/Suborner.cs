@@ -102,8 +102,18 @@ namespace Suborner.Core
                 }
                 if (i == 56)
                 {
-                    Printer.PrintInfo("Setting account as enabled as machine account");
-                    FModified[i] = 0x80;    // ACB_WSTRUST
+                    if (SubornerContext.Instance.User.IsMachineAccount)
+                    {
+                        Printer.PrintInfo("Setting account as enabled as machine account");
+                        FModified[i] = 0x80;    // ACB_WSTRUST
+                        continue;
+                    } 
+                    else 
+                    {
+                        Printer.PrintInfo("Setting account as enabled as normal account");
+                        FModified[i] = 20;    
+                        continue;
+                    }
                     continue;
                 }
                 FModified[i] = F[i];

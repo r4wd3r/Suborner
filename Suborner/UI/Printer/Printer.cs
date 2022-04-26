@@ -32,11 +32,15 @@ namespace Suborner.UI
             Console.WriteLine("- Username: {0} \n" +
                 "- Password: {1} \n" +
                 "- RID: {2} \n" +
-                "- Template Account RID: {3}", 
+                "- Template Account RID: {3}\n" +
+                "- Account to hijack (RID): {4}\n" +
+                "- Machine account: {5}",
                 SubornerContext.Instance.User.Username,
                 SubornerContext.Instance.User.Password,
                 SubornerContext.Instance.User.RID,
-                SubornerContext.Instance.TemplateAccountRID.ToString());
+                SubornerContext.Instance.TemplateAccountRID.ToString(),
+                SubornerContext.Instance.User.FRID,
+                SubornerContext.Instance.User.IsMachineAccount.ToString());
             Console.WriteLine("--------------------------------------------");
         }
 
@@ -72,7 +76,7 @@ namespace Suborner.UI
 
         public static void ShowUsage(ArgumentSemanticAnalyzer analyzer)
         {
-            Console.WriteLine("{} allows the following arguments:", ProgramData.PROGRAM_NAME);
+            Console.WriteLine("Suborner allows the following arguments:");
             foreach (ArgumentDefinition definition in analyzer.ArgumentDefinitions)
             {
                 Console.WriteLine($"\t{definition.ArgumentSwitch}:" +
