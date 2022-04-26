@@ -98,8 +98,12 @@ namespace Suborner.Core
         {
             switch (User.RID)
             {
-                case 0:
-                    User.RID = LocalAccountsRIDs[LocalAccountsRIDs.Length-1] + 1; // Gets the next RID
+                case 0:  // Gets the next RID
+                    if (LocalAccountsRIDs[LocalAccountsRIDs.Length - 1] < 1000) 
+                    {
+                        User.RID = 1000;
+                    }
+                    else User.RID = LocalAccountsRIDs[LocalAccountsRIDs.Length-1] + 1;
                     break;
                 case 500:
                     Printer.PrintError("Error: I shouldn't let you overwrite the 500 built-in account!");
