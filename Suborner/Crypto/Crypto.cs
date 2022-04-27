@@ -24,6 +24,13 @@ namespace Suborner.Crypto
 
         const uint MD5_DIGEST_LENGTH = 16;
 
+        const string LSA_NTPASSWORD = "NTPASSWORD\0",
+            LSA_LMPASSWORD = "LMPASSWORD\0",
+            LSA_NTPASSWORDHISTORY = "NTPASSWORDHISTORY",
+            LSA_LMPASSWORDHISTORY = "LMPASSWORDHISTORY",
+            LMHASH = "aad3b435b51404eeaad3b435b51404ee",
+            NTHASH = "31d6cfe0d16ae931b73c59d7e0c089c0";
+
         public static byte[] EncryptPasswordToSamV(int rid, string password, DOMAIN_ACCOUNT_F domAccF)
         {
             byte[] encryptedPassword = null;
@@ -39,7 +46,7 @@ namespace Suborner.Crypto
 
             //3. Divide NTLM Hash in 2 (NTLMPart1 and NTLMPart2)
             byte[] NTLMPart1 = Utility.StringToByteArray(NTLMHash.Substring(0, 16));
-            byte[] NTLMPart2 = Utility.StringToByteArray(NTLMHash.Substring(16, 16));   // TODO: Confirm that this utility work!
+            byte[] NTLMPart2 = Utility.StringToByteArray(NTLMHash.Substring(16, 16));   
 
             //4. Calculate DES Keys 1 and 2 for each part NTLM_1 and NTLM_2
             List<byte> DESKey1 = new List<byte>();
@@ -62,16 +69,9 @@ namespace Suborner.Crypto
             return encryptedPassword;
         }
 
-        private static byte[] EncryptSamNTHash(int rid, byte[] DESHash, byte[] samKey, DOMAIN_ACCOUNT_F domAccF)
+            private static byte[] EncryptSamNTHash(int rid, byte[] DESHash, byte[] samKey, DOMAIN_ACCOUNT_F domAccF)
         {
             // TODO: Re-implement this to craft both LM/NTLM if needed :)
-            const string LSA_NTPASSWORD = "NTPASSWORD\0",
-            LSA_LMPASSWORD = "LMPASSWORD\0",
-            LSA_NTPASSWORDHISTORY = "NTPASSWORDHISTORY",
-            LSA_LMPASSWORDHISTORY = "LMPASSWORDHISTORY",
-            LMHASH = "aad3b435b51404eeaad3b435b51404ee",
-            NTHASH = "31d6cfe0d16ae931b73c59d7e0c089c0"; 
-
             byte[] encryptedHash = null;
             IntPtr pDomAccF = Marshal.AllocHGlobal(Marshal.SizeOf(domAccF));
             Marshal.StructureToPtr(domAccF, pDomAccF, false);
@@ -141,7 +141,7 @@ namespace Suborner.Crypto
             }
             if (encryptedHash == null)
             {
-                Printer.PrintError("Error calculating the SAM Key");
+                Printer.PrintError("Error calculating the NT SAM Hash");
                 System.Environment.Exit(1);
             }
             return encryptedHash;
