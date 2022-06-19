@@ -19,38 +19,38 @@ namespace Suborner.UI
             ArgumentSemanticAnalyzer analyzer = new ArgumentSemanticAnalyzer();
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("username",
-                    "/username:[username for new account]",
-                    "Specifies the username for the new suborner account. Default = <HOSTNAME>$",
+                    "/username:[string]",
+                    "Username for the new suborner account. Default = <HOSTNAME>$",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("password",
-                    "/password:[password for new account]",
-                    "Specifies the password for the new suborner account. Default = Password.1",
+                    "/password:[string]",
+                    "Password for the new suborner account. Default = Password.1",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("rid",
-                    "/rid:[RID for new account]",
-                    "The RID of the new suborner account. Default = Next RID available",
+                    "/rid:[decimal int]",
+                    "RID for the new suborner account. Default = Next RID available",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("ridhijack",
-                    "/ridhijack:[Impersonated account RID]",
-                    "The RID of the account to impersonate. Default = 500",
+                    "/ridhijack:[decimal int]",
+                    "RID of the account to impersonate. Default = 500 (Administrator)",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("template",
-                    "/template:[Account Name]",
-                    "RID of the template account to use for the new suborner. Default = Administrator (500)",
+                    "/template:[decimal int]",
+                    "RID of the account to use as template for the new account creation. Default = 500 (Administrator)",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("machineaccount",
                     "/machineaccount:[yes/no]",
-                    "Set as machine account. If no, you will lose some stealthiness Default = yes",
+                    "Forge as machine account for extra stealthiness. Default = yes",
                     x => x.IsCompoundSwitch));
             analyzer.AddArgumentVerifier(
                 new ArgumentDefinition("debug",
                     "/debug",
-                    "Enables the debug mode for extra logging",
+                    "Enable debug mode for verbose logging. Default = disabled",
                     x => x.IsSimpleSwitch));
 
 

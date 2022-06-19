@@ -7,16 +7,20 @@ namespace Suborner.UI.ProgramView
     {
         public const string AUTHOR = "@r4wd3r";
         public const string VERSION = "v1.0.0";
-        public const string PROGRAM_NAME = "  ______             __                                                         \n" +
-            " /      \\           /  |                                                        \n" +
-            "/$$$$$$  | __    __ $$ |____    ______    ______   _______    ______    ______  \n" +
-            "$$ \\__$$/ /  |  /  |$$      \\  /      \\  /      \\ /       \\  /      \\  /      \\ \n" +
-            "$$      \\ $$ |  $$ |$$$$$$$  |/$$$$$$  |/$$$$$$  |$$$$$$$  |/$$$$$$  |/$$$$$$  |\n" +
-            " $$$$$$  |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$/ $$ |  $$ |$$    $$ |$$ |  $$/ \n" +
-            "/  \\__$$ |$$ \\__$$ |$$ |__$$ |$$ \\__$$ |$$ |      $$ |  $$ |$$$$$$$$/ $$ |      \n" +
-            "$$    $$/ $$    $$/ $$    $$/ $$    $$/ $$ |      $$ |  $$ |$$       |$$ |      \n" +
-            " $$$$$$/   $$$$$$/  $$$$$$$/   $$$$$$/  $$/       $$/   $$/  $$$$$$$/ $$/       \n";
-        public const string DESCRIPTION = "T H E    I N V I S I B L E    A C C O U N T    F O R G E R";
-        
+        public const string SEPARATOR_TITLE = " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n";
+        public const string SEPARATOR_LOG = "------------------------------";
+        public const string DESCRIPTION = "The Invisible Account Forger";
+        public const string WEBPAGE = "https://r4wsec.com";
+        public const string PROGRAM_HEADER = "      88      \n" +
+                                           "  .d88888b.                  S U B O R N E R \n" +
+                                           " d88P 88\"88b   \n" +         
+                                           " Y88b.88        "+ DESCRIPTION +" \n" +
+                                           " \"Y88888b.                        by "+ AUTHOR +" \n" +
+                                           "      88\"88b                          v1.0.0 \n" + 
+                                           " Y88b 88.88P  \n" +                         
+                                           "  \"Y88888P\"               "+ WEBPAGE +"\n" +
+                                           "      88              ";
+        public const string DESCRIPTION_USAGE = "A stealthy tool to create invisible accounts on Windows systems.";
     }
+
 }

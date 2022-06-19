@@ -12,13 +12,13 @@ namespace Suborner.UI
     {
         public static void PrintHeader()
         {
-            Console.WriteLine("{0} \n \t{1} \n", ProgramData.PROGRAM_NAME, ProgramData.DESCRIPTION);
-            Console.WriteLine("\t\t\t\t\t\t\t by {0} \n \t\t\t\t\t\t\t {1}", ProgramData.AUTHOR, ProgramData.VERSION);
-            Console.WriteLine("------------------------------------------------------------------------------");
+            Console.WriteLine(ProgramData.SEPARATOR_TITLE);
+            Console.WriteLine(ProgramData.PROGRAM_HEADER);
+            Console.WriteLine(ProgramData.SEPARATOR_TITLE);
         }
         public static void PrintUsage(ArgumentSemanticAnalyzer analyzer)
         {
-            Console.WriteLine("{} allows the following arguments:", ProgramData.PROGRAM_NAME);
+            Console.WriteLine("{} allows the following arguments:", ProgramData.PROGRAM_HEADER);
             foreach (ArgumentDefinition definition in analyzer.ArgumentDefinitions)
             {
                 Console.WriteLine($"\t{definition.ArgumentSwitch}:" +
@@ -28,7 +28,7 @@ namespace Suborner.UI
         }
 
         public static void PrintContext() {
-            PrintInfo("Suborner Account Data:");
+            PrintSuccess("Suborner Account Data:");
             Console.WriteLine("- Username: {0} \n" +
                 "- Password: {1} \n" +
                 "- RID: {2} \n" +
@@ -66,22 +66,23 @@ namespace Suborner.UI
         }
         public static void PrintVArray(byte[] V)
         {
-            Console.WriteLine("------------------------------");
+            Console.WriteLine(ProgramData.SEPARATOR_LOG);
             for (int i = 0; i < V.Length; i += 8)
             {
                 Console.WriteLine(String.Format("{0:X4} | {1:X2} {2:X2} {3:X2} {4:X2} {5:X2} {6:X2} {7:X2} {8:X2} ", i, V[i], V[i + 1], V[i + 2], V[i + 3], V[i + 4], V[i + 5], V[i + 6], V[i + 7]));
             }
-            Console.WriteLine("------------------------------");
+            Console.WriteLine(ProgramData.SEPARATOR_LOG);
         }
 
         public static void ShowUsage(ArgumentSemanticAnalyzer analyzer)
         {
-            Console.WriteLine("Suborner allows the following arguments:");
+            Console.WriteLine("\nDescription:\n\n    " + ProgramData.DESCRIPTION_USAGE);
+            Console.WriteLine("\nParameters:\n");
             foreach (ArgumentDefinition definition in analyzer.ArgumentDefinitions)
             {
-                Console.WriteLine($"\t{definition.ArgumentSwitch}:" +
-                    $"({definition.Description}){Environment.NewLine}" +
-                    $"\tSyntax: { definition.Syntax}");
+                Console.WriteLine($"    {definition.ArgumentSwitch}:" +
+                    $" {definition.Description} {Environment.NewLine}" +
+                    $"    Syntax: {definition.Syntax} \n");
             }
         }
 
