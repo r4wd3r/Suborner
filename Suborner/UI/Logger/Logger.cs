@@ -1,14 +1,13 @@
 ﻿using Suborner.Core;
-using Suborner.Module;
 using Suborner.UI.ProgramView;
 using System;
 
 namespace Suborner.UI
 {
     /// <summary>
-    /// Class <c>Printer</c> in charge of parsing output to stdout.
+    /// Class <c>Logger</c> in charge of parsing output to stdout.
     /// </summary>
-    public static class Printer
+    public static class Logger
     {
         public static void PrintHeader()
         {

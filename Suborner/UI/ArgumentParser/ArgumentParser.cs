@@ -1,7 +1,5 @@
 ﻿using Suborner.Core;
-using Suborner.Module;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Suborner.UI
@@ -53,17 +51,15 @@ namespace Suborner.UI
                     "Enable debug mode for verbose logging. Default = disabled",
                     x => x.IsSimpleSwitch));
 
-
             if (!analyzer.VerifyArguments(arguments))
             {
-                // string invalidArguments = analyzer.InvalidArgumentsDisplay();
-                Printer.PrintError("Error parsing arguments");
-                Printer.ShowUsage(analyzer);
+                Logger.PrintError("Error parsing arguments");
+                Logger.ShowUsage(analyzer);
                 System.Environment.Exit(1);
                 return;
             }
 
-            // Set up holders for the command line parsing results with default values
+            // Holders with default parameter values
             string username = "<HOSTNAME>$";
             string password = "Password.1";
             string machineAccountSt = "";
@@ -72,23 +68,20 @@ namespace Suborner.UI
             int templateRid = 500;
             bool machineAccount = true;
             bool isDebug = false;
-           
 
-            //For each parsed argument, we want to apply an action,
-            // so add them to the analyzer.
+            // Parse arguments
             analyzer.AddArgumentAction("USERNAME", x => { username = x.SubArguments[0].Trim(); });
             analyzer.AddArgumentAction("PASSWORD", x => { password = x.SubArguments[0].Trim(); });
             analyzer.AddArgumentAction("RID", x => { rid = Convert.ToInt32(x.SubArguments[0].Trim()); });
             analyzer.AddArgumentAction("RIDHIJACK", x => { ridHijack = Convert.ToInt32(x.SubArguments[0].Trim()); });
             analyzer.AddArgumentAction("TEMPLATE", x => { templateRid = Convert.ToInt32(x.SubArguments[0].Trim()); });
             analyzer.AddArgumentAction("MACHINEACCOUNT", x => { machineAccountSt = x.SubArguments[0].Trim(); }); 
-            analyzer.AddArgumentAction("DEBUG", x => { isDebug = true; }); // TODO: Check how to make this false with flag
+            analyzer.AddArgumentAction("DEBUG", x => { isDebug = true; }); // TODO: Make this false with flag
             analyzer.EvaluateArguments(arguments);
 
             if (machineAccountSt.ToLower().Equals("no")) {
                 machineAccount = false;
             }
-
 
             // Load evaluated arguments to Suborner context
             SubornerContext.Instance.TemplateAccountRID = templateRid;
@@ -99,7 +92,5 @@ namespace Suborner.UI
             SubornerContext.Instance.User.IsMachineAccount = machineAccount;
             SubornerContext.Instance.IsDebug = isDebug;
         }
-        
-
     }
 }

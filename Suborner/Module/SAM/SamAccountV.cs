@@ -59,7 +59,7 @@ namespace Suborner.Module.SAM
             {
                 if (f.Name.Equals(fieldName))
                 {
-                    Printer.PrintDebug("Updating V " + fieldName);
+                    Logger.PrintDebug("Updating V " + fieldName);
                     SAM_ACCOUNT_V_ENTRY prevEntry;
                     SAM_ACCOUNT_V_ENTRY newEntry = new SAM_ACCOUNT_V_ENTRY();
                     prevEntry = (SAM_ACCOUNT_V_ENTRY)f.GetValue(tempV);

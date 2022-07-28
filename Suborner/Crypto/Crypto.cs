@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using static Suborner.Natives;
 
 namespace Suborner.Crypto
 {
@@ -33,16 +32,14 @@ namespace Suborner.Crypto
 
         public static byte[] EncryptPasswordToSamV(int rid, string password, DOMAIN_ACCOUNT_F domAccF)
         {
-            byte[] encryptedPassword = null;
             byte[] samKey;
             byte[] sysKey = SubornerContext.Instance.SysKey;
-            
 
             //1. Differentiate if < Windows 10 v1607 or >
 
             //2. Calculate NTLM Hash
             string NTLMHash = NTLM.CalculateNTLM(password).Trim();
-            Printer.PrintInfo(String.Format("NTLM Hash for password: {0}", NTLMHash));
+            Logger.PrintInfo(String.Format("NTLM Hash for password: {0}", NTLMHash));
 
             //3. Divide NTLM Hash in 2 (NTLMPart1 and NTLMPart2)
             byte[] NTLMPart1 = Utility.StringToByteArray(NTLMHash.Substring(0, 16));
@@ -58,14 +55,14 @@ namespace Suborner.Crypto
             byte[] NTLMPart2DES = ObfuscateHashPart(NTLMPart2, DESKey2);
             byte[] DESHash = NTLMPart1DES.Concat(NTLMPart2DES).ToArray();
 
-            Printer.PrintDebug("Calculated DES Hash Key: " + Utility.ByteArrayToString(DESHash));
+            Logger.PrintDebug("Calculated DES Hash Key: " + Utility.ByteArrayToString(DESHash));
 
             //6. Calculate the SAM Key from SysKey
             samKey = CalculateSamKey(sysKey,domAccF);
-            Printer.PrintDebug("Calculated SAM Key: " + Utility.ByteArrayToString(samKey));
+            Logger.PrintDebug("Calculated SAM Key: " + Utility.ByteArrayToString(samKey));
 
             //7. Calculate SAM Encrypted Hash
-            encryptedPassword = EncryptSamNTHash(rid, DESHash, samKey, domAccF);
+            byte[] encryptedPassword = EncryptSamNTHash(rid, DESHash, samKey, domAccF);
             return encryptedPassword;
         }
 
@@ -94,21 +91,21 @@ namespace Suborner.Crypto
 
                             // Craft NTHashDecryption key with SAM Key, RID and the NTPASSWORD string
                             NTHashDecryptionKey = samKey.Concat(hexBitRid).Concat(Encoding.ASCII.GetBytes(LSA_NTPASSWORD)).ToArray();
-                            Printer.PrintDebug(String.Format("NT Key about to MD5: {0}", Utility.ByteArrayToString(NTHashDecryptionKey))); ;
+                            Logger.PrintDebug(String.Format("NT Key about to MD5: {0}", Utility.ByteArrayToString(NTHashDecryptionKey))); ;
 
                             MD5 md5 = new MD5CryptoServiceProvider();
                             byte[] MD5NTHashDecryptionKey = md5.ComputeHash(NTHashDecryptionKey);
 
                             samHash.data = RC4EncryptDecrypt(MD5NTHashDecryptionKey, DESHash);
 
-                            Printer.PrintDebug(String.Format("Encrypt RC4. Data:{0}", Utility.ByteArrayToString(samHash.data)));
+                            Logger.PrintDebug(String.Format("Encrypt RC4. Data:{0}", Utility.ByteArrayToString(samHash.data)));
                             IntPtr pSamHash = Marshal.AllocHGlobal(Marshal.SizeOf(samHash));
                             encryptedHash = new byte[Marshal.SizeOf(samHash)];
                             Marshal.StructureToPtr(samHash, pSamHash, false); 
                             Marshal.Copy(pSamHash, encryptedHash, 0, Marshal.SizeOf(samHash));
                             Marshal.FreeHGlobal(pSamHash);
 
-                            Printer.PrintDebug("Until here for now");
+                            Logger.PrintDebug("Until here for now");
                             break;
                         case 2:        // >= Windows 10 v1607
                             SAM_HASH_AES samHashAes = new SAM_HASH_AES();
@@ -120,7 +117,7 @@ namespace Suborner.Crypto
                             byte[] newHashIV = new byte[16];
                             samHashAes.data = EncryptAES_CBC(DESHash, samKey, out newHashIV);
                             samHashAes.Salt = newHashIV;
-                            Printer.PrintDebug(String.Format("Encrypt AES. IV:{0} Data:{1}", Utility.ByteArrayToString(samHashAes.Salt), Utility.ByteArrayToString(samHashAes.data)));
+                            Logger.PrintDebug(String.Format("Encrypt AES. IV:{0} Data:{1}", Utility.ByteArrayToString(samHashAes.Salt), Utility.ByteArrayToString(samHashAes.data)));
                             
 
                             IntPtr pSamHashAes = Marshal.AllocHGlobal(Marshal.SizeOf(samHashAes));
@@ -131,17 +128,17 @@ namespace Suborner.Crypto
 
                             break;
                         default:
-                            Printer.PrintError(String.Format("Error: Unknow Struct Key revision (%u)", domAccF.keys1.Revision));
+                            Logger.PrintError(String.Format("Error: Unknow Struct Key revision (%u)", domAccF.keys1.Revision));
                             break;
                     }
                     break;
                 default:
-                    Printer.PrintError(String.Format("Unknow F revision (%hu)", domAccF.Revision));
+                    Logger.PrintError(String.Format("Unknow F revision (%hu)", domAccF.Revision));
                     break;
             }
             if (encryptedHash == null)
             {
-                Printer.PrintError("Error calculating the NT SAM Hash");
+                Logger.PrintError("Error calculating the NT SAM Hash");
                 System.Environment.Exit(1);
             }
             return encryptedHash;
@@ -161,14 +158,14 @@ namespace Suborner.Crypto
                     switch (domAccF.keys1.Revision)
                     {
                         case 1:        //  < Windows 10 v1607
-                            Printer.PrintDebug(String.Format("Detected MD5 Encryption mode "));
+                            Logger.PrintDebug(String.Format("Detected MD5 Encryption mode "));
                             byte[] data = new byte[SAM_KEY_DATA_SALT_LENGTH + LSA_QWERTY.Length + SYSKEY_LENGTH + LSA_0123.Length];
                             data = domAccF.keys1.Salt.Concat(Encoding.Default.GetBytes(LSA_QWERTY)).Concat(sysKey).Concat(Encoding.Default.GetBytes(LSA_0123)).ToArray();
                             byte[] md5Out = MD5.Create().ComputeHash(data.ToArray());
                             samKey = RC4EncryptDecrypt(md5Out, domAccF.keys1.Key);
                             break;
                         case 2:        // >= Windows 10 v1607
-                            Printer.PrintDebug("Detected AES Encryption mode");
+                            Logger.PrintDebug("Detected AES Encryption mode");
                             SAM_KEY_DATA_AES AesKey = new SAM_KEY_DATA_AES();
                             IntPtr pAesKey = IntPtr.Add(pDomAccF, Utility.FieldOffset<DOMAIN_ACCOUNT_F>("keys1"));
                             AesKey = (SAM_KEY_DATA_AES)Marshal.PtrToStructure(pAesKey, typeof(SAM_KEY_DATA_AES));
@@ -177,16 +174,16 @@ namespace Suborner.Crypto
                             samKey = DecryptAES_CBC(AesKey.data, sysKey, AesKey.Salt).Take(SAM_KEY_DATA_KEY_LENGTH).ToArray();
                             break;
                         default:
-                            Printer.PrintError(String.Format("Error: Unknow Struct Key revision (%u)", domAccF.keys1.Revision));
+                            Logger.PrintError(String.Format("Error: Unknow Struct Key revision (%u)", domAccF.keys1.Revision));
                             break;
                     }
                     break;
                 default:
-                    Printer.PrintError(String.Format("Unknow F revision (%hu)", domAccF.Revision));
+                    Logger.PrintError(String.Format("Unknow F revision (%hu)", domAccF.Revision));
                     break;
             }
             if (samKey == null) {
-                Printer.PrintError("Error calculating the SAM Key");
+                Logger.PrintError("Error calculating the SAM Key");
                 System.Environment.Exit(1);
             } 
             return samKey;
@@ -199,8 +196,6 @@ namespace Suborner.Crypto
             Marshal.Copy(p, res, 0, count);
             return res;
         }
-
-        
 
         public static byte[] EncryptAES_CBC(byte[] value, byte[] key, out byte[] iv)
         {
@@ -268,9 +263,6 @@ namespace Suborner.Crypto
                 return dest;
             }
         }
-
-
-
         public static byte[] ComputeSha256(byte[] key, byte[] value)
         {
             MemoryStream memStream = new MemoryStream();

@@ -93,8 +93,8 @@
     <Compile Include="UI\ArgumentParser\ArgumentDefinition.cs" />
     <Compile Include="UI\ArgumentParser\ArgumentParser.cs" />
     <Compile Include="UI\ArgumentParser\ArgumentSemanticAnalyzer.cs" />
-    <Compile Include="UI\Printer\Printer.cs" />
-    <Compile Include="UI\Printer\ProgramData.cs" />
+    <Compile Include="UI\Logger\Logger.cs" />
+    <Compile Include="UI\Logger\ProgramData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

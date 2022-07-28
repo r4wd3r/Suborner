@@ -11,8 +11,6 @@ using System.Diagnostics;
 
 namespace Suborner
 {
-
-    // DEMOREMOVE
     static class RegistryManager
     {
         const uint HK_CLASSES_ROOT_NKEY = (0x80000000);
@@ -26,8 +24,8 @@ namespace Suborner
         const string LSA_CURRENTCONTROLSET_CONTROL_KEYPATH = @"SYSTEM\CurrentControlSet\Control\Lsa\";
 
         const int SYSKEY_LENGTH = 16;
-        static string[] SYSKEY_NAMES = { "JD", "Skew1", "GBG", "Data" };
-        static byte[] SYSKEY_PERMUT = { 8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7 };
+        static readonly string[] SYSKEY_NAMES = { "JD", "Skew1", "GBG", "Data" };
+        static readonly byte[] SYSKEY_PERMUT = { 8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7 };
         // static byte[] SYSKEY_PERMUT = { 11, 6, 7, 1, 8, 10, 14, 0, 3, 5, 2, 15, 13, 9, 12, 4 }; Green Fruit Lover Version
 
         const uint KEY_QUERY_VALUE = (0x1);
@@ -38,7 +36,7 @@ namespace Suborner
 
         public static byte[] GetSysKey()
         {
-            Printer.PrintDebug("Retrieving SysKey");
+            Logger.PrintDebug("Retrieving SysKey");
             StringBuilder scrambledKey = new StringBuilder();
 
             for (int i = 0; i < SYSKEY_NAMES.Length; i++)
@@ -62,12 +60,11 @@ namespace Suborner
             uint MAX_REG_KEY_SIZE = 1024;
             uint MAX_CLASS_DATA_SIZE = 1024;
 
-            int numberOfSubkeys = 0;
             int[] rids = null;
             StringBuilder classData = new StringBuilder(1024);
 
             if (RegQueryInfoKey(hKey, classData, ref MAX_REG_KEY_SIZE, UIntPtr.Zero,
-                out numberOfSubkeys, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero,
+                out int numberOfSubkeys, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero,
                 UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero) == 0)
             {
                 if (numberOfSubkeys != 0)
@@ -75,10 +72,9 @@ namespace Suborner
                     rids = new int[numberOfSubkeys - 1];
                     for (uint i = 0; i < numberOfSubkeys - 1; i++)
                     {
-                        long LastWriteTime;
                         uint MAX_VALUE_NAME = 16383;
                         StringBuilder subkeyName = new StringBuilder(16383);
-                        RegEnumKeyEx(hKey, i, subkeyName, ref MAX_VALUE_NAME, IntPtr.Zero, classData, ref MAX_CLASS_DATA_SIZE, out LastWriteTime);
+                        RegEnumKeyEx(hKey, i, subkeyName, ref MAX_VALUE_NAME, IntPtr.Zero, classData, ref MAX_CLASS_DATA_SIZE, out long LastWriteTime);
                         rids[i] = Int32.Parse(subkeyName.ToString(), System.Globalization.NumberStyles.HexNumber);
                     }
                 }
@@ -121,13 +117,13 @@ namespace Suborner
                 using (FileStream fs = File.Create(fileName))
                 {
                     // Add some text to file    
-                    Byte[] content = new UTF8Encoding(true).GetBytes(SubornerContext.Instance.newNames);
+                    Byte[] content = new UTF8Encoding(true).GetBytes(SubornerContext.Instance.NewNames);
                     fs.Write(content, 0, content.Length);
                 }
             }
-            catch (Exception Ex)
+            catch (Exception)
             {
-                Printer.PrintError("Error trying to write names key");
+                Logger.PrintError("Error trying to write names key");
             }
             var regPath = "";
             if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
@@ -189,7 +185,7 @@ namespace Suborner
             }
             else
             {
-                Printer.PrintError(String.Format("Error: Could not access to {0}:{1}", rootKey, subKey));
+                Logger.PrintError(String.Format("Error: Could not access to {0}:{1}", rootKey, subKey));
                 return hSubkey;
             }
         }
@@ -198,7 +194,6 @@ namespace Suborner
         {
             UIntPtr hRootKey = UIntPtr.Zero;
             UIntPtr hSubkey = UIntPtr.Zero;
-            RegResult disposition;
             switch (rootKey)
             {
                 case "HKCR":
@@ -220,8 +215,8 @@ namespace Suborner
                     return hSubkey;
             }
 
-            if (RegCreateKeyEx(hRootKey, subKey, UIntPtr.Zero, null, RegOption.NonVolatile, RegSAM.AllAccess, UIntPtr.Zero, out hSubkey, out disposition) != 0){
-                Printer.PrintError(String.Format("Error creating the key {0}:{1}", rootKey, subKey)) ;
+            if (RegCreateKeyEx(hRootKey, subKey, UIntPtr.Zero, null, RegOption.NonVolatile, RegSAM.AllAccess, UIntPtr.Zero, out hSubkey, out RegResult disposition) != 0){
+                Logger.PrintError(String.Format("Error creating the key {0}:{1}", rootKey, subKey)) ;
                 System.Environment.Exit(1);
             }
             return hSubkey;
@@ -238,7 +233,7 @@ namespace Suborner
             
             if (RegSetValueEx(hKey, valueName, 0, dataType, valuePointer, value.Length) != 0) 
             {
-                Printer.PrintError(String.Format("Error writing {0}", valueName));
+                Logger.PrintError(String.Format("Error writing {0}", valueName));
                 System.Environment.Exit(1);
             }
 
@@ -249,24 +244,23 @@ namespace Suborner
         {
             if (RegCloseKey(hKey) != 0)
             {
-                Printer.PrintError("Error closing key handle");
+                Logger.PrintError("Error closing key handle");
             }
         }
 
         private static string GetRegKeyClassData(UIntPtr hKey)
         {
             uint classLength = 1024;
-            int numberOfSubKeys = 0;
             StringBuilder classData = new StringBuilder(1024);
             if (RegQueryInfoKey(hKey, classData, ref classLength, UIntPtr.Zero,
-                out numberOfSubKeys, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero,
+                out int numberOfSubKeys, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero,
                 UIntPtr.Zero, UIntPtr.Zero, UIntPtr.Zero) == 0)
             {
                 return classData.ToString();
             }
             else
             {
-                Printer.PrintError("Error getting registry key class data");
+                Logger.PrintError("Error getting registry key class data");
                 return "";
             }
         }

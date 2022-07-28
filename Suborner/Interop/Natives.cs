@@ -2,6 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
+
+// Some structures here have been extracted from mimikatz.
+// Thanks Benjamin Delpy for your amazing work! :)
 namespace Suborner
 {
     class Natives
