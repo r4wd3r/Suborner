@@ -2,6 +2,8 @@
 
 ![image info](https://r4wsec.com/notes/the_suborner_attack/images/suborner_banner.png)
 
+[![Arsenal](https://github.com/toolswatch/badges/blob/master/arsenal/usa/2022.svg)](https://www.blackhat.com/us-22/arsenal/schedule/#suborner-a-windows-bribery-for-invisible-persistence-27976)
+
 ## What's this?
 
 A simple program to create a Windows account you will only know about :)
@@ -18,6 +20,7 @@ Released at [Black Hat USA 2022: Suborner: A Windows Bribery for Invisible Persi
 
 - Blogpost: [R4WSEC - Suborner: A Windows Bribery for Invisible Persistence](https://r4wsec.com/notes/the_suborner_attack/index.html)
 - Demo: [YouTube - Suborner: Creation of Invisible Account on Windows 11](https://youtu.be/TKIHRhaO5tk)
+- Slides - [HITB Singapore Maintrack - Suborner Slides](https://conference.hitb.org/hitbsecconf2022sin/materials/D2T1%20-%20Suborner%20-%20Windows%20Bribery%20for%20Invisible%20Persistence%20-%20Sebastian%20Castro.pdf)
 
 ## How can I use this?
 ### Build
