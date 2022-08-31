@@ -12,7 +12,7 @@ A simple program to create a Windows account you will only know about :)
 - Works on all Windows NT Machines (Windows XP to 11, Windows Server 2003 to 2022)
 - Impersonate through [RID Hijacking](https://r4wsec.com/notes/rid_hijacking/index.html) any existing account (enabled or disabled) after a successful authentication 
 
-Create an invisible machine account with administrative privileges, and without calling that annoying Windows Event Logger!
+Create an invisible machine account with administrative privileges, and without invoking that annoying Windows Event Logger to report its creation!
 
 ## Where can I see more?
 
