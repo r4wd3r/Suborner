@@ -10,7 +10,7 @@ A simple program to create a Windows account you will only know about :)
 
 - Create invisible local accounts without `net user` or Windows OS user management applications (e.g. `netapi32::netuseradd`)
 - Works on all Windows NT Machines (Windows XP to 11, Windows Server 2003 to 2022)
-- Impersonate any existing account after successful authentication through [RID Hijacking](https://r4wsec.com/notes/rid_hijacking/index.html) (even if disabled)
+- Impersonate through [RID Hijacking](https://r4wsec.com/notes/rid_hijacking/index.html) any existing account (enabled or disabled) after a successful authentication 
 
 Create an invisible machine account with administrative privileges, and without calling that annoying Windows Event Logger!
 
