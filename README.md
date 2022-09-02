@@ -20,7 +20,7 @@ Released at [Black Hat USA 2022: Suborner: A Windows Bribery for Invisible Persi
 
 - Blogpost: [R4WSEC - Suborner: A Windows Bribery for Invisible Persistence](https://r4wsec.com/notes/the_suborner_attack/index.html)
 - Demo: [YouTube - Suborner: Creation of Invisible Account on Windows 11](https://youtu.be/TKIHRhaO5tk)
-- Slides - [HITB Singapore Maintrack - Suborner Slides](https://conference.hitb.org/hitbsecconf2022sin/materials/D2T1%20-%20Suborner%20-%20Windows%20Bribery%20for%20Invisible%20Persistence%20-%20Sebastian%20Castro.pdf)
+- Slides - [HITB Singapore Main Track - Suborner Slides](https://conference.hitb.org/hitbsecconf2022sin/materials/D2T1%20-%20Suborner%20-%20Windows%20Bribery%20for%20Invisible%20Persistence%20-%20Sebastian%20Castro.pdf)
 
 ## How can I use this?
 ### Build
