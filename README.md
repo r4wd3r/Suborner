@@ -21,6 +21,21 @@ Released at [Black Hat USA 2022: Suborner: A Windows Bribery for Invisible Persi
 - Blogpost: [R4WSEC - Suborner: A Windows Bribery for Invisible Persistence](https://r4wsec.com/notes/the_suborner_attack/index.html)
 - Demo: [YouTube - Suborner: Creation of Invisible Account on Windows 11](https://youtu.be/TKIHRhaO5tk)
 - Slides - [HITB Singapore Main Track - Suborner Slides](https://conference.hitb.org/hitbsecconf2022sin/materials/D2T1%20-%20Suborner%20-%20Windows%20Bribery%20for%20Invisible%20Persistence%20-%20Sebastian%20Castro.pdf)
+- Paper: [ACM CCS Checkmate 24. Ghost in the SAM: Stealthy, Robust, and Privileged Persistence through Invisible Accounts](https://dl.acm.org/doi/10.1145/3689934.3690839)
+```
+@inproceedings{10.1145/3689934.3690839,
+author = {Castro, Sebasti\'{a}n R. and C\'{a}rdenas, Alvaro A.},
+title = {Ghost in the SAM: Stealthy, Robust, and Privileged Persistence through Invisible Accounts},
+year = {2024},
+isbn = {9798400712302},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3689934.3690839},
+doi = {10.1145/3689934.3690839},
+pages = {59–72},
+numpages = {14},
+}
+```
 
 ## How can I use this?
 ### Build
