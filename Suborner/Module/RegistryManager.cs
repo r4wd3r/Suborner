@@ -22,6 +22,7 @@ namespace Suborner
         const string SAM_DOMAINS_ACCOUNT_KEYPATH = @"SAM\SAM\Domains\Account\";
         const string SAM_DOMAINS_ACCOUNT_USERS_KEYPATH = @"SAM\SAM\Domains\Account\Users\";
         const string LSA_CURRENTCONTROLSET_CONTROL_KEYPATH = @"SYSTEM\CurrentControlSet\Control\Lsa\";
+        const string SYSTEM_HOSTNAME_KEYPATH = @"SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName\";
 
         const int SYSKEY_LENGTH = 16;
         static readonly string[] SYSKEY_NAMES = { "JD", "Skew1", "GBG", "Data" };
@@ -106,6 +107,18 @@ namespace Suborner
 
             F = FValue;
             V = VValue;
+        }
+
+        public static string GetHostname()
+        {
+            //TODO: Implement with API Calls
+            string hostname = null;
+
+            RegistryKey userKey = Registry.LocalMachine.OpenSubKey(SYSTEM_HOSTNAME_KEYPATH);
+            hostname = (string)userKey.GetValue("ComputerName");
+            userKey.Close();
+
+            return hostname;
         }
 
         public static void WriteNamesKey(string username, int rid)

@@ -86,7 +86,7 @@ namespace Suborner.Core
             {
                 // TODO: Retrieve this from registry
                 Logger.PrintInfo("Retrieving hostname");
-                User.Username = System.Environment.GetEnvironmentVariable("COMPUTERNAME") + "$";
+                User.Username = RegistryManager.GetHostname() + "$";
                 return;
             }
             if (!User.Username.EndsWith("$"))
