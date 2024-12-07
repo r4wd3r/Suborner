@@ -432,6 +432,21 @@ namespace Suborner
             AllAccess = 0x000f003f
         }
 
+        [Flags]
+        public enum DwFlags
+        {
+            RRF_RT_ANY = 0x0000FFFF,
+            RRF_RT_DWORD = 0x00000018,
+            RRF_RT_QWORD = 0x00000048,
+            RRF_RT_REG_BINARY = 0x00000008,
+            RRF_RT_REG_DWORD = 0x00000010,
+            RRF_RT_REG_EXPAND_SZ = 0x00000004,
+            RRF_RT_REG_MULTI_SZ = 0x00000020,
+            RRF_RT_REG_NONE = 0x00000001,
+            RRF_RT_REG_QWORD = 0x00000040,
+            RRF_RT_REG_SZ = 0x00000002
+        }
+
         public enum RegResult
         {
             CreatedNewKey = 0x00000001,
@@ -483,9 +498,9 @@ namespace Suborner
             UIntPtr hkey, 
             string lpSubKey, 
             string lpValue, 
-            uint dwFlags, 
-            out uint pdwType, 
-            UIntPtr pvData, 
+            DwFlags dwFlags, 
+            out uint pdwType,
+            byte[] pvData, 
             ref Int32 pcbData);
 
         [DllImport("advapi32.dll", SetLastError = true)]

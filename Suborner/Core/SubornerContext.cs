@@ -84,9 +84,8 @@ namespace Suborner.Core
             // Didn't add special characters sanitization if you ever want to experiment with them :)
             if (User.Username.Equals("<HOSTNAME>$"))
             {
-                // TODO: Retrieve this from registry
                 Logger.PrintInfo("Retrieving hostname");
-                User.Username = System.Environment.GetEnvironmentVariable("COMPUTERNAME") + "$";
+                User.Username = RegistryManager.GetHostname() + "$";
                 return;
             }
             if (!User.Username.EndsWith("$"))
