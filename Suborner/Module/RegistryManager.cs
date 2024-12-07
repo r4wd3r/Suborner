@@ -111,14 +111,25 @@ namespace Suborner
 
         public static string GetHostname()
         {
-            //TODO: Implement with API Calls
-            string hostname = null;
+            UIntPtr hKey = OpenRegKey("HKLM", SYSTEM_HOSTNAME_KEYPATH);
+            
+            int MAX_CLASS_DATA_SIZE = 16383;
+            uint valueType;
+            byte[] hostname = new byte[MAX_CLASS_DATA_SIZE];
 
-            RegistryKey userKey = Registry.LocalMachine.OpenSubKey(SYSTEM_HOSTNAME_KEYPATH);
-            hostname = (string)userKey.GetValue("ComputerName");
-            userKey.Close();
+            RegGetValue(hKey, "", "ComputerName", DwFlags.RRF_RT_REG_SZ, out valueType, hostname, ref MAX_CLASS_DATA_SIZE);
+            CloseRegKey(hKey);
 
-            return hostname;
+            StringBuilder hostnameStringBuilder = new StringBuilder();
+
+            for (int i = 0; i < hostname.Length; i += 2)
+            {
+                char currentChar = BitConverter.ToChar(hostname, i);
+                if (currentChar == '\0') break;
+                hostnameStringBuilder.Append(currentChar);
+            }
+
+            return hostnameStringBuilder.ToString();
         }
 
         public static void WriteNamesKey(string username, int rid)
